@@ -1,7 +1,10 @@
-package com.tb.learn.viewpager.fragment
+package com.tb.learn.page
 
 import androidx.annotation.StringDef
 import com.tb.learn.statusbar.TabAdapter
+import com.tb.learn.page.fragment.BasePageFragment
+import com.tb.learn.page.fragment.HomePageFragment
+import com.tb.learn.page.fragment.TestPageFragment
 
 object PageHelper {
 
@@ -16,7 +19,7 @@ object PageHelper {
 
     private var adapter: TabAdapter? = null
     fun setAdapter(adapter: TabAdapter) {
-        this.adapter = adapter
+        PageHelper.adapter = adapter
     }
 
     fun getPageFragment(@Type type: String): BasePageFragment =

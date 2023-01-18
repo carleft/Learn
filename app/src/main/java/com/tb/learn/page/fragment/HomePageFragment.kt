@@ -1,8 +1,10 @@
-package com.tb.learn.viewpager.fragment
+package com.tb.learn.page.fragment
 
 import android.view.View
 import android.widget.Button
 import com.tb.learn.R
+import com.tb.learn.content.FileScanner
+import com.tb.learn.page.PageHelper
 
 class HomePageFragment: BasePageFragment() {
 
@@ -12,7 +14,8 @@ class HomePageFragment: BasePageFragment() {
 
     override fun initView(root: View) {
         root.findViewById<Button>(R.id.fragment_home_page_btn).setOnClickListener {
-            PageHelper.addPage(PageHelper.Type.TEST)
+//            PageHelper.addPage(PageHelper.Type.TEST)
+            FileScanner.queryOther()
         }
     }
 }

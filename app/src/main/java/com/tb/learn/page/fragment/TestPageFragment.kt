@@ -1,4 +1,4 @@
-package com.tb.learn.viewpager.fragment
+package com.tb.learn.page.fragment
 
 import android.view.View
 import android.widget.Button

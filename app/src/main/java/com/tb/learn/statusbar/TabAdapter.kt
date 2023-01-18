@@ -7,7 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.tb.learn.R
-import com.tb.learn.viewpager.fragment.PageHelper
+import com.tb.learn.page.PageHelper
 
 class TabAdapter(var onTabChangeListener: OnTabChangeListener):
     RecyclerView.Adapter<TabAdapter.TabViewHolder>() {

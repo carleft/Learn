@@ -1,11 +1,10 @@
-package com.tb.learn.viewpager.fragment
+package com.tb.learn.page.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.tb.learn.R
 
 abstract class BasePageFragment: Fragment() {
 

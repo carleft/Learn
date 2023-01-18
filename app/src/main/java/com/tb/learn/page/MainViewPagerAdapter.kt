@@ -1,10 +1,9 @@
-package com.tb.learn.viewpager
+package com.tb.learn.page
 
-import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.tb.learn.viewpager.fragment.BasePageFragment
+import com.tb.learn.page.fragment.BasePageFragment
 
 class MainViewPagerAdapter(fragmentActivity: FragmentActivity):
     FragmentStateAdapter(fragmentActivity) {

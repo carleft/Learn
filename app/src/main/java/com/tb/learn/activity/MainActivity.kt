@@ -1,15 +1,19 @@
-package com.tb.learn
+package com.tb.learn.activity
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.widget.ImageView
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.tb.learn.R
+import com.tb.learn.content.FileScanner
 import com.tb.learn.statusbar.TabAdapter
-import com.tb.learn.viewpager.MainViewPagerAdapter
-import com.tb.learn.viewpager.fragment.PageHelper
+import com.tb.learn.page.MainViewPagerAdapter
+import com.tb.learn.page.PageHelper
 
 class MainActivity: FragmentActivity() {
 
@@ -26,8 +30,37 @@ class MainActivity: FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        applyForPermission()
         initViewPager()
         initStatusBar()
+    }
+
+    /**
+     * 权限申请回调
+     */
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (grantResults.isNotEmpty())
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    /**
+     * 申请读写文件权限
+     */
+    private fun applyForPermission() {
+        val REQUEST_CODE_CONTACT = 0
+        val permissions = arrayOf<String>(
+            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_PHONE_STATE
+        )
+        //验证是否申请权限
+        if (applicationContext.checkSelfPermission(permissions[1]) != PackageManager.PERMISSION_GRANTED) {
+            //申请权限
+            ActivityCompat.requestPermissions(this@MainActivity, permissions, REQUEST_CODE_CONTACT)
+        }
     }
 
     /**
