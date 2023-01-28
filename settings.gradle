@@ -13,4 +13,5 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Learn"
-include ':app'
+include ':file_explorer'
+include ':tools'
