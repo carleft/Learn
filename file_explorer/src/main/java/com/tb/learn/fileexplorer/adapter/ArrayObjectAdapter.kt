@@ -27,6 +27,11 @@ class ArrayObjectAdapter private constructor(): RecyclerView.Adapter<RecyclerVie
         notifyItemRangeInserted(position, 1)
     }
 
+    fun addAll(collection: Collection<Any>) {
+        mDataList.addAll(collection)
+        notifyItemRangeInserted(mDataList.size - collection.size, collection.size)
+    }
+
     //移除元素
     fun remove(item: Any) {
         remove(mDataList.indexOf(item))
