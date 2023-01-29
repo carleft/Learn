@@ -5,37 +5,52 @@ import android.database.Cursor
 import android.provider.MediaStore
 import android.util.Log
 import com.tb.learn.fileexplorer.MainApplication
+import com.tb.tools.TBLog
 
 object FileScanner {
 
     private val contentResolver: ContentResolver? = MainApplication.instance?.contentResolver
+    private const val TAG: String = "FileScanner"
 
     fun queryOther() {
+
+        //区分Provider的URI
+        val uri = MediaStore.Files.getContentUri("external")
+
+        //projection表示要返回的列内容，不填则返回所有列
+        val projection = arrayOf(
+            MediaStore.Files.FileColumns.TITLE,
+            MediaStore.Files.FileColumns.MIME_TYPE,
+        )
+
+        //selection表示筛选条件，相当于WHERE，不填表示不筛选
         val selection: String = "(" + MediaStore.Files.FileColumns.DATA + " LIKE '%.jpg'" +
-        " or " + MediaStore.Files.FileColumns.DATA + " LIKE '%.png'" +
-                " or " + MediaStore.Files.FileColumns.DATA + " LIKE '%.apk'" +
-                " or " + MediaStore.Files.FileColumns.DATA + " LIKE '%.xlsx'" +
-                " or " + MediaStore.Files.FileColumns.DATA + " LIKE '%.zip'" +
-                " or " + MediaStore.Files.FileColumns.DATA + " LIKE '%.rar'" + ")";
-        val cursor: Cursor? = contentResolver?.query(MediaStore.Files.getContentUri("external"), null, selection, null, MediaStore.Files.FileColumns.DATE_ADDED + " DESC");
+        " or " + MediaStore.Files.FileColumns.DATA + " LIKE '%.png'" + ")";
+
+        val selectionArgs = null
+
+        //sortOrder表示排序方式，相当于Order By，升序（默认）在后面跟" ASC"，降序在后面跟" DESC"
+        val sortOrder: String = MediaStore.Files.FileColumns.DATE_ADDED + " DESC"
+
+        val cursor: Cursor? = contentResolver?.query(uri, null, selection, null, sortOrder);
         parseCursor(cursor);
     }
 
     private fun parseCursor(cursor: Cursor?) {
-        if (cursor == null) {
-            return;
-        }
-        while (cursor.moveToNext()) {
-            //String mimeType = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE));
-            val path: String = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA))
-            var modifyTimed: Long = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)) * 1000L
-            val displayName: String = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME))
-            val size: Int = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE))
+       cursor?.let {
+            while (it.moveToNext()) {
+                //getColumnIndexOrThrow 如果获取不到对应的列则直接抛异常，因此最好只获取projection中的内容
+                val displayName: String = it.getString(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME))
+                val title: String = it.getString(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.TITLE))
+                val mimeType: String = it.getString(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE));
+                val path: String = it.getString(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA))
+                var modifyTimed: Long = it.getInt(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATE_MODIFIED)) * 1000L
+                val size: Int = it.getInt(it.getColumnIndexOrThrow(MediaStore.Files.FileColumns.SIZE))
 
-            Log.e("TB0232" ,"size " + size + "dispaly " + displayName + "path " + path);
-
+                TBLog.e(TAG, "displayName = $displayName, title = $title, mimeType = $mimeType, path = $path, modifyTimed = $modifyTimed, size = $size");
+            }
+            it.close()
         }
-        cursor.close();
     }
 
 }
