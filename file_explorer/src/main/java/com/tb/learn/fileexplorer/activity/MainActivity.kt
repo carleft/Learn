@@ -19,7 +19,7 @@ import kotlin.system.exitProcess
 class MainActivity: FragmentActivity() {
 
     companion object {
-        const val TAG: String = "MainActivity"
+        private const val TAG: String = "MainActivity"
     }
 
     private val REQUEST_CODE_CONTACT = 0

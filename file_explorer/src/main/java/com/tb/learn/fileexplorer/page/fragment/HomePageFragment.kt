@@ -4,16 +4,33 @@ import android.view.View
 import android.widget.Button
 import com.tb.learn.fileexplorer.R
 import com.tb.learn.fileexplorer.page.PageHelper
+import com.tb.tools.TBLog
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
 
 class HomePageFragment: BasePageFragment() {
+
+    companion object {
+        private const val TAG = "HomePageFragment"
+        private val executor = Executors.newFixedThreadPool(4)
+    }
 
     override fun getLayoutId(): Int {
         return R.layout.fragment_home_page
     }
 
     override fun initView(root: View) {
-        root.findViewById<Button>(R.id.fragment_home_page_btn).setOnClickListener {
+        root.findViewById<Button>(R.id.fragment_home_page_btn_file_list).setOnClickListener {
             PageHelper.addPage(PageHelper.Type.LIST)
+        }
+
+        root.findViewById<Button>(R.id.fragment_home_page_btn_executor_test).setOnClickListener {
+            for (i in 0..20) {
+                executor.submit(Callable<Boolean> {
+                    TBLog.e(TAG, "Hello World, currentThread = ${Thread.currentThread()}")
+                    true
+                })
+            }
         }
     }
 }

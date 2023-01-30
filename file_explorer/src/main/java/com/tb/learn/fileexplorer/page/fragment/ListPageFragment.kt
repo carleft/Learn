@@ -14,12 +14,21 @@ import com.tb.learn.fileexplorer.R
 import com.tb.learn.fileexplorer.adapter.ArrayObjectAdapter
 import com.tb.learn.fileexplorer.adapter.Presenter
 import com.tb.learn.fileexplorer.content.FileScanner
+import com.tb.tools.TBLog
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import java.lang.ref.WeakReference
 
-class ListPageFragment: BasePageFragment() {
+class ListPageFragment : BasePageFragment() {
 
     private lateinit var mRecyclerList: RecyclerView
     var adapter: ArrayObjectAdapter? = null
+
+    companion object {
+        private const val TAG = "ListPageFragment"
+    }
 
     override fun getLayoutId(): Int {
         return R.layout.fragment_list_page
@@ -29,36 +38,62 @@ class ListPageFragment: BasePageFragment() {
         mRecyclerList = root.findViewById(R.id.fragment_list_page_recyclerview)
         adapter = ArrayObjectAdapter(ListPresenter())
         mRecyclerList.adapter = adapter
-        mRecyclerList.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        mRecyclerList.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
     }
 
     override fun onResume() {
         super.onResume()
-        FileScanTask(this).execute()
-    }
-
-    class ListPresenter: Presenter() {
-        override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
-            val itemView: View = LayoutInflater.from(parent.context).inflate(R.layout.viewholder_list_presenter, parent, false)
-            return object: RecyclerView.ViewHolder(itemView) {}
-        }
-
-        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, item: Any?) {
-            holder.itemView.let { itemView ->
-                val title: TextView = itemView.findViewById(R.id.viewholder_list_presenter_title)
-                val img: ImageView = itemView.findViewById(R.id.viewholder_list_presenter_img)
-                (item as? FileScanner.FileScanResult)?.let { result ->
-                    title.text = result.title
-                    val option = BitmapFactory.Options()
-                    option.inPreferredConfig = Bitmap.Config.ALPHA_8
-                    option.inJustDecodeBounds = false
-                    option.inSampleSize = 100
-                    BitmapFactory.decodeFile(result.path, option)?.let { bitmap ->
-                        img.setImageBitmap(bitmap)
+//        FileScanTask(this).execute()
+        //协程使用，待研究
+        MainScope().launch {
+            async {
+                FileScanner.queryOther()
+            }.let {
+                launch(Dispatchers.Main) {
+                    adapter?.let { adapter ->
+                        adapter.addAll(it.await())
                     }
                 }
             }
         }
+
+//        MainScope().launch {
+//            flow<ArrayList<FileScanner.FileScanResult>> {
+//                FileScanner.queryOther()
+//            }.flowOn(Dispatchers.Default).catch {
+//
+//            }.collect(){
+//                adapter?.let { adapter ->
+//                    adapter.addAll(it)
+//                }
+//            }
+//        }
+    }
+
+    class ListPresenter: Presenter() {
+        override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
+            val itemView: View = LayoutInflater.from(parent.context)
+                .inflate(R.layout.viewholder_list_presenter, parent, false)
+            return ListViewHolder(itemView)
+        }
+
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, item: Any?) {
+            val timeStart = System.currentTimeMillis()
+            (holder as? ListViewHolder)?.let { vh ->
+                (item as? FileScanner.FileScanResult)?.let { result ->
+                    vh.title.text = result.title
+                    //尽量不在onBindViewHolder中做耗时操作，此处不应该读取图片
+                    vh.img.setImageBitmap(result.bitmap)
+                }
+            }
+            TBLog.e(TAG, "onBindViewHolder end, elapsed time = ${System.currentTimeMillis() - timeStart}" )
+        }
+    }
+
+    class ListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val title: TextView = itemView.findViewById(R.id.viewholder_list_presenter_title)
+        val img: ImageView = itemView.findViewById(R.id.viewholder_list_presenter_img)
     }
 
 
@@ -71,7 +106,7 @@ class ListPageFragment: BasePageFragment() {
         }
 
         override fun onPostExecute(result: ArrayList<FileScanner.FileScanResult>?) {
-            ref.get()?.adapter?.let {adapter ->
+            ref.get()?.adapter?.let { adapter ->
                 result?.let { result ->
                     adapter.addAll(result)
                 }
