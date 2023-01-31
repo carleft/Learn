@@ -5,7 +5,7 @@ import android.widget.Button
 import com.tb.learn.fileexplorer.R
 import com.tb.learn.fileexplorer.page.PageHelper
 import com.tb.tools.TBLog
-import java.util.concurrent.Callable
+import com.tb.tools.AsyncTest
 import java.util.concurrent.Executors
 
 class HomePageFragment: BasePageFragment() {
@@ -20,17 +20,16 @@ class HomePageFragment: BasePageFragment() {
     }
 
     override fun initView(root: View) {
+
         root.findViewById<Button>(R.id.fragment_home_page_btn_file_list).setOnClickListener {
             PageHelper.addPage(PageHelper.Type.LIST)
         }
 
         root.findViewById<Button>(R.id.fragment_home_page_btn_executor_test).setOnClickListener {
-            for (i in 0..20) {
-                executor.submit(Callable<Boolean> {
-                    TBLog.e(TAG, "Hello World, currentThread = ${Thread.currentThread()}")
-                    true
-                })
+            AsyncTest.getInstance().AsyncImpl4 {
+                TBLog.e(TAG, "$it, currentThread = ${Thread.currentThread()}")
             }
+            TBLog.e(TAG, "async job is running")
         }
     }
 }

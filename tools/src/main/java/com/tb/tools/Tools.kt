@@ -1,3 +1,5 @@
+//顶层声明函数需要加此名称，才能被java调用，例如KotlinTools.whenAllNotNull
+@file:JvmName("KotlinTools")
 package com.tb.tools
 
 import android.graphics.Bitmap
