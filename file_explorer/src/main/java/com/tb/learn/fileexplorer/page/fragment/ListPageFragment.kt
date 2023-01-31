@@ -16,6 +16,7 @@ import com.tb.learn.fileexplorer.adapter.Presenter
 import com.tb.learn.fileexplorer.content.FileScanResult
 import com.tb.learn.fileexplorer.content.FileScanner
 import com.tb.tools.TBLog
+import com.tb.tools.getBitmapByFactory
 import com.tb.tools.whenAllNotNull
 import kotlinx.coroutines.*
 
@@ -45,6 +46,7 @@ class ListPageFragment : BasePageFragment() {
 
         //图片查看器
         mImgViewer = root.findViewById(R.id.fragment_list_page_img_viewer)
+        mImgViewer.visibility = View.INVISIBLE
         mImgViewer.setOnClickListener {
             it.visibility = View.GONE
         }
@@ -71,14 +73,6 @@ class ListPageFragment : BasePageFragment() {
             //尽量不在onBindViewHolder中做耗时操作，否则会影响滑动流畅度
             val timeStart = System.currentTimeMillis()
 
-//            (holder as? ListViewHolder)?.let { vh ->
-//                (item as? FileScanResult)?.let { result ->
-//                    vh.title.text = result.title
-//                    vh.img.setImageBitmap(result.bitmap)
-//                    vh.path.text = result.path
-//                }
-//            }
-
             //自己写的判空API
             whenAllNotNull(holder as? ListViewHolder, item as? FileScanResult) {
                 vh, result ->
@@ -87,18 +81,11 @@ class ListPageFragment : BasePageFragment() {
                 vh.itemView.setOnClickListener {
                     onItemClick(result)
                 }
-                //子线程加载图片
-                MainScope().launch(Dispatchers.Default) {
-                    //读取图片
-                    val option = BitmapFactory.Options()
-                    //缩小图片读取大小，避免Canvas: trying to draw too large bitmap
-                    option.inPreferredConfig = Bitmap.Config.ALPHA_8
-                    option.inJustDecodeBounds = false
-                    option.inSampleSize = 100
 
-                    BitmapFactory.decodeFile(result.path, option)?.let { bitmap ->
-                        //加载完成后主线程更新UI
-                        withContext(Dispatchers.Main) {
+                vh.img.post {
+                    //子线程加载图片
+                    MainScope().launch(Dispatchers.Main) {
+                        getBitmapByFactory(result.path, vh.img.width, vh.img.height).let { bitmap ->
                             vh.img.setImageBitmap(bitmap)
                         }
                     }
@@ -109,15 +96,13 @@ class ListPageFragment : BasePageFragment() {
         }
 
         private fun onItemClick(item: FileScanResult) {
-            MainScope().launch(Dispatchers.Default) {
-                //读取图片
-                val option = BitmapFactory.Options()
-                //缩小图片读取大小，避免Canvas: trying to draw too large bitmap
-                option.inPreferredConfig = Bitmap.Config.ARGB_8888
-                option.inJustDecodeBounds = false
-                option.inSampleSize = 2
-                BitmapFactory.decodeFile(item.path, option)?.let {
-                    withContext(Dispatchers.Main) {
+            mImgViewer.post {
+                val width = mImgViewer.width
+                val height = mImgViewer.height
+                TBLog.d(TAG, "width = $width, height = $height")
+
+                MainScope().launch(Dispatchers.Main) {
+                    getBitmapByFactory(item.path, width, height)?.let {
                         mImgViewer.setImageBitmap(it)
                         mImgViewer.visibility = View.VISIBLE
                     }
