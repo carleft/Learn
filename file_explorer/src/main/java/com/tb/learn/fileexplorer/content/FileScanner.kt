@@ -2,8 +2,6 @@ package com.tb.learn.fileexplorer.content
 
 import android.content.ContentResolver
 import android.database.Cursor
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.provider.MediaStore
 import com.tb.learn.fileexplorer.MainApplication
 import com.tb.tools.TBLog

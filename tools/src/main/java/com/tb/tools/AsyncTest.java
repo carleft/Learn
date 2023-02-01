@@ -13,6 +13,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 public class AsyncTest {
     private static final String TAG = "Tools";
     private final MHandler mHandler;
@@ -136,7 +145,7 @@ public class AsyncTest {
         subHandler.sendEmptyMessage(0);
     }
 
-    //4.Executor
+    //4.Executor + Rxjava
     public void AsyncImpl4(MCallback callback) {
         //主线程Handler设置回调
         mHandler.setCallback(callback);
@@ -152,16 +161,36 @@ public class AsyncTest {
         };
         //提交任务
         Future<String> future = service.submit(task);
-        //TODO: get方法依然阻塞，如何解决？
-        try {
-            callback.onResult(future.get());
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            //关闭线程池
-            service.shutdown();
-        }
+
+        //Rxjava异步执行
+        Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+                emitter.onNext(future.get());
+                emitter.onComplete();
+            }
+        }).observeOn(AndroidSchedulers.mainThread()) //回调在主线程
+            .subscribeOn(Schedulers.io()) //执行在IO线程
+            .subscribe(new Observer<String>() {
+                @Override
+                public void onSubscribe(Disposable d) {
+
+                }
+
+                @Override
+                public void onNext(String s) {
+                    callback.onResult(s);
+                }
+
+                @Override
+                public void onError(Throwable e) {
+
+                }
+
+                @Override
+                public void onComplete() {
+
+                }
+            });
     }
-
-
 }
