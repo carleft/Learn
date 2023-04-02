@@ -1,7 +1,6 @@
 package com.tb.learn.fileexplorer.page.fragment
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,10 +10,12 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tb.learn.fileexplorer.R
+import com.tb.learn.fileexplorer.activity.TestActivity
 import com.tb.learn.fileexplorer.adapter.ArrayObjectAdapter
 import com.tb.learn.fileexplorer.adapter.Presenter
 import com.tb.learn.fileexplorer.content.FileScanResult
 import com.tb.learn.fileexplorer.content.FileScanner
+import com.tb.customview.ScaleGestureImageView
 import com.tb.tools.TBLog
 import com.tb.tools.getBitmapByFactory
 import com.tb.tools.whenAllNotNull
@@ -23,7 +24,7 @@ import kotlinx.coroutines.*
 class ListPageFragment : BasePageFragment() {
 
     private lateinit var mRecyclerList: RecyclerView
-    private lateinit var mImgViewer: ImageView
+    private lateinit var mImgViewer: ScaleGestureImageView
     var adapter: ArrayObjectAdapter? = null
 
     companion object {
@@ -96,18 +97,21 @@ class ListPageFragment : BasePageFragment() {
         }
 
         private fun onItemClick(item: FileScanResult) {
-            mImgViewer.post {
-                val width = mImgViewer.width
-                val height = mImgViewer.height
-                TBLog.d(TAG, "width = $width, height = $height")
-
-                MainScope().launch(Dispatchers.Main) {
-                    getBitmapByFactory(item.path, width, height)?.let {
-                        mImgViewer.setImageBitmap(it)
-                        mImgViewer.visibility = View.VISIBLE
-                    }
-                }
-            }
+//            mImgViewer.post {
+//                val width = mImgViewer.width
+//                val height = mImgViewer.height
+//                TBLog.d(TAG, "width = $width, height = $height")
+//
+//                MainScope().launch(Dispatchers.Main) {
+//                    getBitmapByFactory(item.path, width, height)?.let {
+//                        mImgViewer.setImageBitmap(it)
+//                        mImgViewer.visibility = View.VISIBLE
+//                    }
+//                }
+//            }
+            val intent: Intent = Intent(activity, TestActivity::class.java)
+            intent.putExtra("path", item.path)
+            activity?.startActivity(intent)
         }
     }
 

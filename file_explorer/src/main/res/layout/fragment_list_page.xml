@@ -8,11 +8,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <ImageView
+    <com.tb.customview.ScaleGestureImageView
         android:id="@+id/fragment_list_page_img_viewer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#66000000"
-        android:scaleType="fitCenter"/>
+        android:background="#66000000" />
 
 </FrameLayout>
