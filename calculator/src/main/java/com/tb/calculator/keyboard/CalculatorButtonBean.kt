@@ -1,6 +1,6 @@
 package com.tb.calculator.keyboard
 
 data class CalculatorButtonBean(
-    val text: String = "",
+    val type: @CalculatorButtonType String = "",
     var imgRes: Int = 0
 )

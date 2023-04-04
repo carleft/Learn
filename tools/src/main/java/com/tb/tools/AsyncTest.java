@@ -5,8 +5,11 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
